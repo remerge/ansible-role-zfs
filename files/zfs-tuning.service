@@ -1,0 +1,15 @@
+[Unit]
+Description=ZFS Tuning
+Requires=zfs-mount.service
+After=zfs-mount.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/zfs-tuning.sh
+RemainAfterExit=true
+StandardOutput=journal
+
+[Install]
+WantedBy=default.target

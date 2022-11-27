@@ -1,0 +1,10 @@
+---
+- name: Detect zfs pool
+  community.general.zpool_facts:
+    name: "{{ item.key }}"
+  failed_when: false
+
+- name: Create zfs pool
+  ansible.builtin.command: >
+    zpool create {{ item.key }} {{ item.value }}
+  when: ansible_zfs_pools is not defined

@@ -1,0 +1,50 @@
+---
+- name: Install ZFS repo
+  ansible.builtin.dnf:
+    name: "https://zfsonlinux.org/epel/zfs-release-2-2.el{{ ansible_distribution_major_version }}.noarch.rpm"
+    disable_gpg_check: true
+    state: present
+
+- name: Install ZFS kernel module
+  ansible.builtin.dnf:
+    name:
+      - kernel-headers
+      - kernel-modules
+      - kernel-devel
+      - zfs
+    state: present
+
+- name: Load ZFS kernel module
+  community.general.modprobe:
+    name: zfs
+    state: present
+
+- name: Create zfs-tuning.sh
+  ansible.builtin.copy:
+    src: zfs-tuning.sh
+    dest: /usr/local/sbin/zfs-tuning.sh
+    owner: root
+    group: root
+    mode: 0755
+  when: zpools is defined
+
+- name: Install zfs-tuning service
+  ansible.builtin.copy:
+    src: zfs-tuning.service
+    dest: /usr/lib/systemd/system/zfs-tuning.service
+    owner: root
+    group: root
+    mode: 0644
+  when: zpools is defined
+
+- name: Start zfs-tuning service
+  ansible.builtin.service:
+    name: zfs-tuning
+    state: started
+    enabled: true
+  when: zpools is defined
+
+- name: Create ZFS pool
+  ansible.builtin.include_tasks: create-pool.yml
+  with_dict: "{{ zpools }}"
+  when: zpools is defined

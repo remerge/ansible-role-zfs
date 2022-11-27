@@ -1,0 +1,16 @@
+---
+zpool_data_options: >
+  -f -o ashift=12
+  -O relatime=on
+  -O logbias=throughput
+  -O xattr=off
+  -O compression=lz4
+
+zpool_data_devices: >
+  /dev/disk/by-partlabel/data
+
+zpools:
+  data: >
+    {{ zpool_data_raid_level | default('') }}
+    {{ zpool_data_options }}
+    {{ zpool_data_devices }}
