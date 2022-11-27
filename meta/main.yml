@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: remerge
+  role_name: zfs
+  description: Install and configure ZFS kernel modules and pools with Ansible.
+  license: apache-2.0
+  company: remerge.io
+  min_ansible_version: "2.10"
+
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+
+  galaxy_tags:
+    - zfs
