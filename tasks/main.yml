@@ -4,6 +4,7 @@
     name: "https://zfsonlinux.org/epel/zfs-release-2-2.el{{ ansible_distribution_major_version }}.noarch.rpm"
     disable_gpg_check: true
     state: present
+  when: zpools is defined
 
 - name: Install ZFS kernel module
   ansible.builtin.dnf:
@@ -13,11 +14,13 @@
       - kernel-devel
       - zfs
     state: present
+  when: zpools is defined
 
 - name: Load ZFS kernel module
   community.general.modprobe:
     name: zfs
     state: present
+  when: zpools is defined
 
 - name: Create zfs-tuning.sh
   ansible.builtin.copy:
