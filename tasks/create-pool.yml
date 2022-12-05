@@ -3,6 +3,7 @@
   ansible.builtin.command: >
     zpool import -a
   failed_when: false
+  changed_when: false
 
 - name: Detect zfs pool
   community.general.zpool_facts:
