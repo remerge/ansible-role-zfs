@@ -4,7 +4,7 @@
     name: "https://zfsonlinux.org/epel/zfs-release-2-2.el{{ ansible_distribution_major_version }}.noarch.rpm"
     disable_gpg_check: true
     state: present
-  when: zpools is defined
+  when: zpools is defined and zpools != None
 
 - name: Install ZFS kernel module
   ansible.builtin.dnf:
@@ -14,13 +14,13 @@
       - kernel-devel
       - zfs
     state: present
-  when: zpools is defined
+  when: zpools is defined and zpools != None
 
 - name: Load ZFS kernel module
   community.general.modprobe:
     name: zfs
     state: present
-  when: zpools is defined
+  when: zpools is defined and zpools != None
 
 - name: Create zfs-tuning.sh
   ansible.builtin.copy:
@@ -29,7 +29,7 @@
     owner: root
     group: root
     mode: 0755
-  when: zpools is defined
+  when: zpools is defined and zpools != None
 
 - name: Install zfs-tuning service
   ansible.builtin.copy:
@@ -38,16 +38,16 @@
     owner: root
     group: root
     mode: 0644
-  when: zpools is defined
+  when: zpools is defined and zpools != None
 
 - name: Start zfs-tuning service
   ansible.builtin.service:
     name: zfs-tuning
     state: started
     enabled: true
-  when: zpools is defined
+  when: zpools is defined and zpools != None
 
 - name: Create ZFS pool
   ansible.builtin.include_tasks: create-pool.yml
-  with_dict: "{{ zpools }}"
-  when: zpools is defined
+  with_dict: "{{ zpools | default({}, true) }}"
+  when: zpools is defined and zpools != None
