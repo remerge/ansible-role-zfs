@@ -1,4 +1,9 @@
 ---
+- name: Import existing zfs pools
+  ansible.builtin.command: >
+    zpool import -a
+  failed_when: false
+
 - name: Detect zfs pool
   community.general.zpool_facts:
     name: "{{ item.key }}"
