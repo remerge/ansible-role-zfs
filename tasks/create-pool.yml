@@ -13,4 +13,5 @@
 - name: Create zfs pool
   ansible.builtin.command: >
     zpool create {{ item.key }} {{ item.value }}
+  changed_when: false
   when: ansible_zfs_pools is not defined
