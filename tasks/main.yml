@@ -6,12 +6,15 @@
     state: present
   when: zpools is defined and zpools != None
 
+- name: Disable ZFS DKMS
+  ansible.builtin.command: dnf config-manager --disable zfs
+
+- name: Disable ZFS KMOD
+  ansible.builtin.command: dnf config-manager --enable zfs-kmod
+
 - name: Install ZFS kernel module
   ansible.builtin.dnf:
     name:
-      - kernel-headers
-      - kernel-modules
-      - kernel-devel
       - zfs
     state: present
   when: zpools is defined and zpools != None
