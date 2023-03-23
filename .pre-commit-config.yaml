@@ -71,11 +71,13 @@ repos:
 
   # https://github.com/ansible/ansible-lint/tags
   - repo: https://github.com/ansible/ansible-lint
-    rev: "v6.14.1"
+    rev: "v6.14.2"
     hooks:
       - id: ansible-lint
         name: ansible-lint
         entry: python3 -m ansiblelint -v --force-color --strict
+        additional_dependencies:
+          - "passlib"
 
   # https://github.com/robertdebock/pre-commit/tags
   - repo: https://github.com/robertdebock/pre-commit
