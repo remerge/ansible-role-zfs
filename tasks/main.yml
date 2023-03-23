@@ -9,7 +9,7 @@
 - name: Disable ZFS DKMS
   ansible.builtin.command: dnf config-manager --disable zfs
 
-- name: ENable ZFS KMOD
+- name: Enable ZFS KMOD
   ansible.builtin.command: dnf config-manager --enable zfs-kmod
 
 - name: Install ZFS kernel module
