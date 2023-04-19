@@ -21,6 +21,7 @@
     "mkhl.shfmt",
     "ms-azuretools.vscode-docker",
     "ms-vscode.cpptools-extension-pack",
+    "ms-vscode.makefile-tools",
     "redhat.vscode-yaml",
     "samuelcolvin.jinjahtml",
     "sharat.vscode-brewfile",
