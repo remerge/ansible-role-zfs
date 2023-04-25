@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ansible-role-zfs"
-version = "0.3.1"
+version = "0.4.0"
 description = "Install and configure ZFS kernel modules and pools with Ansible."
 authors = ["Remerge GmbH <sre@remerge.io>"]
 
