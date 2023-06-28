@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   role_name: zfs
-  description: Install and configure ZFS kernel modules and pools with Ansible.
+  description: Ansible Role for ZFS
   license: apache-2.0
   author: remerge
   company: remerge.io
