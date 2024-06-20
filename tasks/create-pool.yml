@@ -6,12 +6,13 @@
   changed_when: false
 
 - name: Detect zfs pool
-  community.general.zpool_facts:
-    name: "{{ item.key }}"
+  ansible.builtin.command: "zpool list {{  item.key }}"
+  register: ansible_zfs_pool
   failed_when: false
+  changed_when: false
 
 - name: Create zfs pool
   ansible.builtin.command: >
     zpool create {{ item.key }} {{ item.value }}
   changed_when: false
-  when: ansible_zfs_pools is not defined
+  when: ansible_zfs_pool.rc == 1
