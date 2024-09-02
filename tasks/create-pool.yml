@@ -6,7 +6,7 @@
   changed_when: false
 
 - name: Detect zfs pool
-  ansible.builtin.command: "zpool list {{  item.key }}"
+  ansible.builtin.command: "zpool list {{ item.key }}"
   register: ansible_zfs_pool
   failed_when: false
   changed_when: false
