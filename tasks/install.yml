@@ -12,6 +12,7 @@
 
 - name: Switch ZFS repo to kmod
   ansible.builtin.shell: |
+    dnf config-manager --enable zfs-testing
     dnf config-manager --disable zfs
     dnf config-manager --enable zfs-kmod
   changed_when: false
