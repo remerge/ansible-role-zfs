@@ -29,11 +29,15 @@
 
 - name: Create zfs-tuning.sh
   ansible.builtin.copy:
-    src: zfs-tuning.sh
     dest: /usr/local/sbin/zfs-tuning.sh
     owner: root
     group: root
     mode: 0755
+    content: |
+      #!/bin/bash
+      {% for param in zfs_parameters | default({}) %}
+      echo {{ zfs_parameters[param] }} > /sys/module/zfs/parameters/{{ param }}
+      {% endfor %}
 
 - name: Install zfs-tuning service
   ansible.builtin.copy:
