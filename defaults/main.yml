@@ -7,9 +7,9 @@ zpool_data_options: >
   -O compression=lz4
 
 zpool_data_devices: |-
-  {% if 'scsi-0QEMU_QEMU_HARDDISK_data' in (ansible_facts['device_links'].ids.values() | flatten) -%}
+  {% if 'scsi-0QEMU_QEMU_HARDDISK_data' in (ansible_facts['device_links']['ids'].values() | flatten) -%}
   /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_data
-  {% elif 'google-data' in (ansible_facts['device_links'].ids.values() | flatten) -%}
+  {% elif 'google-data' in (ansible_facts['device_links']['ids'].values() | flatten) -%}
   /dev/disk/by-id/google-data
   {% else -%}
   /dev/disk/by-partlabel/data
