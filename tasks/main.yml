@@ -1,9 +1,7 @@
 ---
 - name: Install ZFS
   ansible.builtin.include_tasks: install.yml
-  when: zpools is defined and zpools != None
 
 - name: Create ZFS pools
   ansible.builtin.include_tasks: create-pool.yml
   with_dict: "{{ zpools | default({}, true) }}"
-  when: zpools is defined and zpools != None
