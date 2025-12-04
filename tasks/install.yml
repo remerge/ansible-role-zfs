@@ -31,6 +31,13 @@
     name: zfs
     state: present
 
+- name: Ensure zfs module loads on boot
+  ansible.builtin.lineinfile:
+    path: /etc/modules-load.d/zfs.conf
+    line: zfs
+    create: yes
+    mode: "0644"
+
 - name: Create zfs-tuning.sh
   ansible.builtin.copy:
     src: zfs-tuning.sh
