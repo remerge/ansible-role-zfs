@@ -35,7 +35,7 @@
   ansible.builtin.lineinfile:
     path: /etc/modules-load.d/zfs.conf
     line: zfs
-    create: yes
+    create: true
     mode: "0644"
 
 - name: Create zfs-tuning.sh
