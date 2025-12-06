@@ -1,0 +1,4 @@
+#!/bin/bash
+{% for param, value in zfs_module_parameters.items() %}
+echo {{ value }} >/sys/module/zfs/parameters/{{ param }}
+{% endfor %}
