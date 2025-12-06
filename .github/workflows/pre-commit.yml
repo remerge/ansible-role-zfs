@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Checkout repository
         # https://github.com/actions/checkout/releases
-        uses: actions/checkout@v6.0.0
+        uses: actions/checkout@v6.0.1
 
       - name: Setup SSH agent
         # https://github.com/webfactory/ssh-agent/releases
@@ -44,6 +44,11 @@ jobs:
           curl -f -sL --retry 5 --retry-delay 1 https://api.github.com/meta | jq -r '"github.com "+.ssh_keys[]' >> ~/.ssh/known_hosts
           git config --global url."git@github.com:".insteadOf "https://github.com/"
           git config --global advice.detachedHead false
+
+      - name: Setup Python
+        uses: actions/setup-python@v6.1.0
+        with:
+          python-version: "3.14"
 
       - name: Install uv
         # https://github.com/astral-sh/setup-uv/releases
