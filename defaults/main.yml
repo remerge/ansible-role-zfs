@@ -15,8 +15,11 @@ zpool_data_devices: |-
   /dev/disk/by-partlabel/data
   {%- endif %}
 
-zpools:
-  data: >
-    {{ zpool_data_raid_level | default('') }}
-    {{ zpool_data_options }}
-    {{ zpool_data_devices }}
+zpool_data: >
+  {{ zpool_data_raid_level | default('') }}
+  {{ zpool_data_options }}
+  {{ zpool_data_devices }}
+
+# Example zpools definition with default data disk:
+# zpools:
+#   data: "{{ zpool_data }}"
