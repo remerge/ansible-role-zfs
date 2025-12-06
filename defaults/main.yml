@@ -1,4 +1,15 @@
 ---
+zfs_module_parameters:
+  l2arc_headroom: 12
+  l2arc_write_max: 1000000000
+  l2arc_noprefetch: 0
+  # Commented until tuning for spinning disks
+  # zfs_vdev_async_read_max_active: 100
+  # zfs_vdev_async_write_max_active: 100
+  # zfs_vdev_sync_read_max_active: 100
+  # zfs_vdev_sync_write_max_active: 100
+  # zfs_vdev_max_active: 6000
+
 zpool_data_options: >
   -f -o ashift=12
   -O relatime=on
