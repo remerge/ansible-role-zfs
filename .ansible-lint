@@ -10,7 +10,6 @@ exclude_paths:
   - meta/preferences.yml
   - molecule
   - playbooks/all.yaml
-  - playbooks/roles.yaml
 
 skip_list:
   - meta-no-info
