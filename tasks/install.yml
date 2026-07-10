@@ -16,9 +16,9 @@
     dnf config-manager --enable zfs
   changed_when: false
 
-- name: Install kernel-devel package
+- name: Install kernel-devel matching the running kernel
   ansible.builtin.dnf:
-    name: kernel-devel
+    name: "kernel-devel-{{ ansible_facts['kernel'] }}"
     state: present
 
 - name: Install zfs package
