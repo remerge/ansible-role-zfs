@@ -1,4 +1,8 @@
 ---
+# DKMS repository from zfs-release to install OpenZFS from. zfs-latest follows the newest release line.
+# Set a versioned repository such as zfs-2.4 to keep hosts on one release line.
+zfs_repository: zfs-latest
+
 zfs_module_parameters:
   l2arc_headroom: 12
   l2arc_write_max: 1000000000
