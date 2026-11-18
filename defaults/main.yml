@@ -34,3 +34,6 @@ zpool_data: >
 # Example zpools definition with default data disk:
 # zpools:
 #   data: "{{ zpool_data }}"
+
+# Set to false to skip ZFS on a host. The role then installs and configures nothing.
+zfs_enabled: true

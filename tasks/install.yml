@@ -26,6 +26,12 @@
     name: zfs
     state: present
 
+- name: Enable and start dkms service
+  ansible.builtin.systemd:
+    name: dkms.service
+    state: started
+    enabled: true
+
 - name: Load zfs kernel module
   community.general.modprobe:
     name: zfs

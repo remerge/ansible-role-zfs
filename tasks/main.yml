@@ -1,7 +1,9 @@
 ---
 - name: Install ZFS
   ansible.builtin.include_tasks: install.yml
+  when: zfs_enabled | bool
 
 - name: Create ZFS pools
   ansible.builtin.include_tasks: create-pool.yml
   with_dict: "{{ zpools | default({}, true) }}"
+  when: zfs_enabled | bool
