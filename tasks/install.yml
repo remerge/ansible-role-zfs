@@ -12,8 +12,8 @@
 
 - name: Switch to zfs repository
   ansible.builtin.shell: |
-    dnf config-manager --disable zfs-kmod
-    dnf config-manager --enable zfs
+    dnf config-manager --disable 'zfs*'
+    dnf config-manager --enable {{ zfs_repository | quote }}
   changed_when: false
 
 - name: Install kernel-devel matching the running kernel
