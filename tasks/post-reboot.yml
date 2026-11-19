@@ -1,0 +1,42 @@
+---
+# Run right after a reboot with `tasks_from: post-reboot`. Fails the host when
+# the loaded ZFS module does not match the installed zfs package, or when a pool
+# that was imported before the reboot (pre-reboot.yml) is missing or unhealthy.
+# Hosts without the zfs package pass.
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+
+- name: Verify ZFS after the reboot
+  when: "'zfs' in ansible_facts.packages"
+  block:
+    - name: Read the loaded ZFS module version
+      ansible.builtin.slurp:
+        src: /sys/module/zfs/version
+      register: zfs_loaded_module
+
+    - name: Assert the loaded ZFS module matches the installed zfs package
+      ansible.builtin.assert:
+        that:
+          - (zfs_loaded_module.content | b64decode | trim).split('-') | first == ansible_facts.packages['zfs'][0].version
+        fail_msg: >-
+          Loaded ZFS module {{ zfs_loaded_module.content | b64decode | trim }} does not match
+          the installed zfs package {{ ansible_facts.packages['zfs'][0].version }}.
+        quiet: true
+
+    - name: List imported pools and their health
+      ansible.builtin.command:
+        cmd: zpool list -H -o name,health
+      register: zfs_pools_after_reboot
+      changed_when: false
+      check_mode: false
+
+    - name: Assert every pool from before the reboot is imported and online
+      ansible.builtin.assert:
+        that:
+          - zfs_pools_before_reboot.stdout_lines | default([]) | difference(zfs_pools_after_reboot.stdout_lines) | length == 0
+          - zfs_pools_after_reboot.stdout_lines | reject('match', '^\\S+\\tONLINE$') | list | length == 0
+        fail_msg: >-
+          Pools after the reboot: {{ zfs_pools_after_reboot.stdout_lines | join(', ') | default('none', true) }};
+          before the reboot: {{ zfs_pools_before_reboot.stdout_lines | default([]) | join(', ') | default('none', true) }}.
+        quiet: true

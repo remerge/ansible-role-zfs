@@ -1,0 +1,78 @@
+---
+# Run right before a reboot with `tasks_from: pre-reboot`. Fails the host when
+# the kernel it boots next has no ZFS module matching the installed zfs package,
+# or when a pool is not healthy. Hosts without the zfs package pass.
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+
+- name: Verify ZFS for the next boot
+  when: "'zfs' in ansible_facts.packages"
+  block:
+    - name: Find the kernel the host boots next
+      ansible.builtin.command:
+        cmd: grubby --default-kernel
+      register: zfs_default_kernel
+      changed_when: false
+      check_mode: false
+
+    - name: Set the boot kernel and the installed ZFS version
+      ansible.builtin.set_fact:
+        zfs_boot_kernel: "{{ zfs_default_kernel.stdout | trim | basename | regex_replace('^vmlinuz-', '') }}"
+        zfs_package_version: "{{ ansible_facts.packages['zfs'][0].version }}"
+
+    - name: Install kernel-devel for the boot kernel
+      ansible.builtin.dnf:
+        name: "kernel-devel-{{ zfs_boot_kernel }}"
+        state: present
+
+    - name: Look for a ZFS module for the boot kernel
+      ansible.builtin.command:
+        cmd: modinfo -k {{ zfs_boot_kernel | quote }} -F version zfs
+      register: zfs_boot_module_found
+      changed_when: false
+      check_mode: false
+      failed_when: false
+
+    # The kernel update may run its DKMS hook before kernel-devel for the new
+    # kernel is installed, and then no module is built for it.
+    - name: Build the ZFS module for the boot kernel
+      ansible.builtin.command:
+        cmd: dkms install zfs/{{ zfs_package_version | quote }} -k {{ zfs_boot_kernel | quote }}
+      changed_when: true
+      when: >-
+        zfs_boot_module_found.rc != 0 or
+        (zfs_boot_module_found.stdout | trim).split('-') | first != zfs_package_version
+
+    - name: Read the ZFS module version for the boot kernel
+      ansible.builtin.command:
+        cmd: modinfo -k {{ zfs_boot_kernel | quote }} -F version zfs
+      register: zfs_boot_module
+      changed_when: false
+      check_mode: false
+      failed_when: false
+
+    - name: Assert the boot kernel has the installed ZFS module
+      ansible.builtin.assert:
+        that:
+          - zfs_boot_module.rc == 0
+          - (zfs_boot_module.stdout | trim).split('-') | first == zfs_package_version
+        fail_msg: >-
+          Kernel {{ zfs_boot_kernel }} has no ZFS {{ zfs_package_version }} module
+          (modinfo: {{ zfs_boot_module.stdout | default('') | trim }}{{ zfs_boot_module.stderr | default('') | trim }}).
+          Rebooting would leave the host without its pools.
+        quiet: true
+
+    - name: List imported pools and their health
+      ansible.builtin.command:
+        cmd: zpool list -H -o name,health
+      register: zfs_pools_before_reboot
+      changed_when: false
+      check_mode: false
+
+    - name: Assert all pools are online
+      ansible.builtin.assert:
+        that:
+          - zfs_pools_before_reboot.stdout_lines | reject('match', '^\\S+\\tONLINE$') | list | length == 0
+        fail_msg: "Pools are not online, not rebooting: {{ zfs_pools_before_reboot.stdout_lines | reject('match', '^\\S+\\tONLINE$') | join(', ') }}"
+        quiet: true
