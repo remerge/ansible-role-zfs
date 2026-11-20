@@ -1,14 +1,18 @@
 ---
-- name: Remove kmod-zfs package
-  ansible.builtin.dnf:
-    name: kmod-zfs
-    state: absent
-
 - name: Install zfs-release package
   ansible.builtin.dnf:
     name: "https://zfsonlinux.org/epel/zfs-release-3-0.el{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     disable_gpg_check: true
     state: present
+
+# rpm keeps a zfs.repo that dnf config-manager edited and writes the one of the
+# new zfs-release next to it as zfs.repo.rpmnew. The kept file lacks the
+# repositories added since (zfs-latest, zfs-2.4, ...), and the next task sets
+# the enabled flags anyway.
+- name: Replace a zfs.repo kept from an older zfs-release
+  ansible.builtin.command:
+    cmd: mv -f /etc/yum.repos.d/zfs.repo.rpmnew /etc/yum.repos.d/zfs.repo
+    removes: /etc/yum.repos.d/zfs.repo.rpmnew
 
 - name: Switch to zfs repository
   ansible.builtin.shell: |
@@ -21,10 +25,21 @@
     name: "kernel-devel-{{ ansible_facts['kernel'] }}"
     state: present
 
+- name: Gather package facts
+  ansible.builtin.package_facts:
+
+# Older versions of this role installed kmod-zfs, which requires zfs of the
+# same version and conflicts with zfs-dkms. Upgrading zfs and installing
+# zfs-dkms with allowerasing removes kmod-zfs in the same transaction, so a
+# failed install leaves the old packages in place. Hosts without kmod-zfs keep
+# their installed version.
 - name: Install zfs package
   ansible.builtin.dnf:
-    name: zfs
-    state: present
+    name:
+      - zfs
+      - zfs-dkms
+    state: "{{ 'latest' if 'kmod-zfs' in ansible_facts.packages else 'present' }}"
+    allowerasing: true
 
 - name: Load zfs kernel module
   community.general.modprobe:
