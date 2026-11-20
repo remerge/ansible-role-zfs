@@ -41,6 +41,14 @@
     state: "{{ 'latest' if 'kmod-zfs' in ansible_facts.packages else 'present' }}"
     allowerasing: true
 
+# dkms.service builds missing modules for the booted kernel at startup. It is
+# the fallback when a kernel update did not build ZFS for the new kernel.
+- name: Enable and start dkms service
+  ansible.builtin.systemd:
+    name: dkms.service
+    state: started
+    enabled: true
+
 - name: Load zfs kernel module
   community.general.modprobe:
     name: zfs
