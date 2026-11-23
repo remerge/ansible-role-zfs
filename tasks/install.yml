@@ -1,9 +1,19 @@
 ---
+- name: Gather package facts
+  ansible.builtin.package_facts:
+
+# dnf downloads the package from the URL on every call, even when it is
+# installed, so the task runs only when zfs-release 3-0 is missing.
 - name: Install zfs-release package
   ansible.builtin.dnf:
     name: "https://zfsonlinux.org/epel/zfs-release-3-0.el{{ ansible_facts['distribution_major_version'] }}.noarch.rpm"
     disable_gpg_check: true
     state: present
+  when: >-
+    ansible_facts.packages['zfs-release'] | default([])
+    | selectattr('version', 'equalto', '3')
+    | selectattr('release', 'match', '0\\.')
+    | list | length == 0
 
 # rpm keeps a zfs.repo that dnf config-manager edited and writes the one of the
 # new zfs-release next to it as zfs.repo.rpmnew. The kept file lacks the
@@ -24,9 +34,6 @@
   ansible.builtin.dnf:
     name: "kernel-devel-{{ ansible_facts['kernel'] }}"
     state: present
-
-- name: Gather package facts
-  ansible.builtin.package_facts:
 
 # Older versions of this role installed kmod-zfs, which requires zfs of the
 # same version and conflicts with zfs-dkms. Upgrading zfs and installing
